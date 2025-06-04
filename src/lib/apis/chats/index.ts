@@ -111,8 +111,6 @@ export const getChatList = async (token: string = '', page: number | null = null
 	}));
 };
 
-};
-
 export const getArchivedChatList = async (
 	token: string = '',
 	page: number = 1,
