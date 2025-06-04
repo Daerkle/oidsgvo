@@ -109,12 +109,6 @@ systemctl restart open-webui
 3. **Monitoring:** Logs überwachen für eventuelle Fehler nach Deployment
 4. **Backup:** Vor Deployment Backup der ursprünglichen Dateien erstellen
 
-## 📞 **Support**
-
-Bei Fragen oder Problemen:
-- Prüfen Sie die Logs: `docker logs open-webui`
-- Überprüfen Sie die Umgebungsvariablen
-- Kontaktieren Sie den Systemadministrator
 
 ---
 **Status:** ✅ Implementierung abgeschlossen
