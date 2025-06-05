@@ -71,10 +71,6 @@ systemctl restart open-webui
 - Database-Einstellungen prüfen: Kein "Export All Chats" Button
 - API-Endpunkte testen: Sollten 404/401 Fehler zurückgeben
 
-### 3. **Weitere Schritte (Optional)**
-- Audit-Logging für Datenschutz-Compliance implementieren
-- Benutzer-Selbstverwaltung für eigene Daten erweitern
-- Automatische Löschung alter Daten konfigurieren
 
 ## 📊 **Vorher vs. Nachher**
 
