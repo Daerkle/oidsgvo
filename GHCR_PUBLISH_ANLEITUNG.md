@@ -49,35 +49,25 @@ Erstellen Sie eine neue `docker-compose.ghcr.yaml`:
 
 ```yaml
 services:
-  ollama:
-    volumes:
-      - ollama:/root/.ollama
-    container_name: ollama
-    pull_policy: always
-    tty: true
-    restart: unless-stopped
-    image: ollama/ollama:latest
-
   open-webui:
     image: ghcr.io/daerkle/oidsgvo:latest
     container_name: open-webui-dsgvo
     volumes:
       - open-webui:/app/backend/data
-    depends_on:
-      - ollama
     ports:
       - "3000:8080"
     environment:
-      - 'OLLAMA_BASE_URL=http://ollama:11434'
       - 'WEBUI_SECRET_KEY='
       - 'ENABLE_ADMIN_EXPORT=false'
       - 'ENABLE_ADMIN_CHAT_ACCESS=false'
+      - 'SCARF_NO_ANALYTICS=true'
+      - 'DO_NOT_TRACK=true'
+      - 'ANONYMIZED_TELEMETRY=false'
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: unless-stopped
 
 volumes:
-  ollama: {}
   open-webui: {}
 ```
 
@@ -90,8 +80,12 @@ Jetzt können andere das DSGVO-konforme Image direkt verwenden:
 docker run -d \
   --name oidsgvo \
   -p 3000:8080 \
+  -e WEBUI_SECRET_KEY= \
   -e ENABLE_ADMIN_EXPORT=false \
   -e ENABLE_ADMIN_CHAT_ACCESS=false \
+  -e SCARF_NO_ANALYTICS=true \
+  -e DO_NOT_TRACK=true \
+  -e ANONYMIZED_TELEMETRY=false \
   -v oidsgvo-data:/app/backend/data \
   ghcr.io/daerkle/oidsgvo:latest
 
@@ -167,8 +161,12 @@ jobs:
 docker run -d \
   --name oidsgvo \
   -p 3000:8080 \
+  -e WEBUI_SECRET_KEY= \
   -e ENABLE_ADMIN_EXPORT=false \
   -e ENABLE_ADMIN_CHAT_ACCESS=false \
+  -e SCARF_NO_ANALYTICS=true \
+  -e DO_NOT_TRACK=true \
+  -e ANONYMIZED_TELEMETRY=false \
   ghcr.io/daerkle/oidsgvo:latest
 ```
 

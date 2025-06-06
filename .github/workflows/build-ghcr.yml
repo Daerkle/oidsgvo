@@ -2,10 +2,11 @@ name: Build and Push DSGVO-konforme Open WebUI to GHCR
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
     tags: [ 'v*' ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, main ]
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -17,10 +18,16 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
     - name: Log in to Container Registry
       if: github.event_name != 'pull_request'
@@ -42,20 +49,43 @@ jobs:
           type=semver,pattern={{major}}.{{minor}}
           type=raw,value=latest,enable={{is_default_branch}}
           type=raw,value=dsgvo-compliant,enable={{is_default_branch}}
+          type=sha,prefix={{branch}}-
         labels: |
           org.opencontainers.image.title=DSGVO-konforme Open WebUI
-          org.opencontainers.image.description=Open WebUI without admin chat access for GDPR compliance
+          org.opencontainers.image.description=Open WebUI ohne Admin-Chat-Zugriff für DSGVO-Konformität
           org.opencontainers.image.vendor=Daerkle
           org.opencontainers.image.licenses=MIT
+          org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          org.opencontainers.image.revision=${{ github.sha }}
+          org.opencontainers.image.created=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
         file: ./Dockerfile
+        platforms: linux/amd64,linux/arm64
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         build-args: |
-          ENABLE_ADMIN_EXPORT=false
-          ENABLE_ADMIN_CHAT_ACCESS=false
+          BUILD_HASH=${{ github.sha }}
+          USE_CUDA=false
+          USE_OLLAMA=false
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Generate SBOM
+      if: github.event_name != 'pull_request'
+      uses: anchore/sbom-action@v0
+      with:
+        image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        format: spdx-json
+        output-file: sbom.spdx.json
+
+    - name: Upload SBOM
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@v4
+      with:
+        name: sbom
+        path: sbom.spdx.json
