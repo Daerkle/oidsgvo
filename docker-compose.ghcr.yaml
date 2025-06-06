@@ -1,7 +1,8 @@
 services:
   open-webui:
-    image: ghcr.io/daerkle/oidsgvo:${WEBUI_DOCKER_TAG-latest}
+    image: ghcr.io/daerkle/oidsgvo:${WEBUI_DOCKER_TAG-amd64}
     container_name: open-webui-dsgvo
+    platform: linux/amd64
     volumes:
       - open-webui:/app/backend/data
     ports:
